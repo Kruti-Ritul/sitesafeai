@@ -105,11 +105,24 @@
     <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
     <script>
         const socket = io();
+        let timeout;
+        let isUpdating = false; // To control when the message can be updated
 
         // Listen for status updates from the server
         socket.on('status_update', (data) => {
+            if (isUpdating) return; // If we're already showing an alert, don't update it again
+
             const statusMessage = document.getElementById('status-message');
             statusMessage.textContent = data.message; // Update the status message dynamically
+
+            isUpdating = true; // Mark that an update is in progress
+
+
+            //set timeout
+            timeout = setTimeout(()=> {
+                statusMessage.textContent = "No alerts yet.";
+                isUpdating = false; // Allow new updates after the timeout
+            }, 5000);
         });
     </script>
 

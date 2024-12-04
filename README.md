@@ -34,7 +34,27 @@ The dataset is sourced from Kaggle: [Construction Site Safety Dataset](https://w
   - Kaggle for model training and experimentation.
   - OpenVINO Toolkit: For optimizing the YOLOv8 model, enhancing inference performance on Intel hardware.
 
+## How to use
+
+1. **Clone the repository**:
+     ```bash
+   git clone https://github.com/Pree46/sitesafeai.git
+   ```
+  
+2. **Install dependencies**:
+   ```bash 
+   pip install -r requirements.txt 
+   ```
+3. **Train the model**:
+- Use the YOLOv8 notebook to train the model on the provided dataset.
+4. **Optimize the model**:
+- Convert the trained model using OpenVINO for faster inference.
+5. **Run the application**:
+   ```bash python app.py 
+   ```
+
 ## Acknowledgements
 - Kaggle for providing the Construction Site Safety Dataset.
 - Intel OpenVINO for optimization tools.
 - YOLOv8 for object detection.
+

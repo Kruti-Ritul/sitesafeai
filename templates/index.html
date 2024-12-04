@@ -56,6 +56,22 @@
             border: 2px solid #ff4747;
             color: #ff4747;
             box-shadow: 0 4px 20px rgba(255, 71, 71, 0.5);
+            min-height: 50px;
+        }
+
+        #generate-report-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #007BFF;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+
+        #generate-report-btn:hover {
+            background-color: #0056b3;
         }
 
         footer {
@@ -97,8 +113,11 @@
     <!-- Status Message -->
     <div id="status-message">No alerts yet.</div>
 
+    <!-- Button to Generate Report -->
+    <button id="generate-report-btn">Generate Report</button>
+
     <footer>
-        Powered by <a href="https://ultralytics.com/yolov8" target="_blank">SiteSafeAI</a>
+        Powered by <a href="/" target="_blank">SiteSafeAI</a>
     </footer>
 
     <!-- Include Socket.IO -->
@@ -117,12 +136,17 @@
 
             isUpdating = true; // Mark that an update is in progress
 
-
-            //set timeout
-            timeout = setTimeout(()=> {
+            // Set timeout to reset the alert message
+            timeout = setTimeout(() => {
                 statusMessage.textContent = "No alerts yet.";
                 isUpdating = false; // Allow new updates after the timeout
-            }, 5000);
+            }, 5000); // Change the timeout to 5 seconds
+        });
+
+        // Add event listener for the "Generate Report" button
+        document.getElementById('generate-report-btn').addEventListener('click', function() {
+            // Request a report from the server
+            socket.emit('request_report');
         });
     </script>
 

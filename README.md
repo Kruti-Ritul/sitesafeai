@@ -50,7 +50,8 @@ The dataset is sourced from Kaggle: [Construction Site Safety Dataset](https://w
 4. **Optimize the model**:
 - Convert the trained model using OpenVINO for faster inference.
 5. **Run the application**:
-   ```bash python app.py 
+   ```bash 
+   python app.py 
    ```
 
 ## Acknowledgements

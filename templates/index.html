@@ -5,16 +5,83 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>YOLOv8 Object Detection - Live Webcam Feed</title>
     <style>
+        /* Reset and basic styling */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
+            font-family: Arial, sans-serif;
+            background-color: #1e1e2f;
+            color: #ffffff;
             display: flex;
             justify-content: center;
             align-items: center;
+            flex-direction: column;
             height: 100vh;
             margin: 0;
-            background-color: #f4f4f4;
         }
+
+        h1 {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        #video-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 3px solid #007BFF;
+            border-radius: 12px;
+            overflow: hidden;
+            background: #2a2a3b;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        }
+
         #video-feed {
-            border: 2px solid #000;
+            width: 100%;
+            max-width: 600px;
+        }
+
+        #status-message {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1.2rem;
+            text-align: center;
+            border-radius: 8px;
+            background: #2a2a3b;
+            border: 2px solid #ff4747;
+            color: #ff4747;
+            box-shadow: 0 4px 20px rgba(255, 71, 71, 0.5);
+        }
+
+        footer {
+            margin-top: 20px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #aaaaaa;
+        }
+
+        footer a {
+            color: #007BFF;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        @media (max-width: 768px) {
+            #video-feed {
+                max-width: 90%;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
         }
     </style>
 </head>
@@ -22,8 +89,29 @@
 
     <h1>YOLOv8 Object Detection - Live Webcam Feed</h1>
     
-    <!-- Display the live webcam feed with object detection results -->
-    <img id="video-feed" src="{{ url_for('video') }}" alt="Video Feed" />
+    <div id="video-container">
+        <!-- Display the live webcam feed with object detection results -->
+        <img id="video-feed" src="{{ url_for('video') }}" alt="Video Feed" />
+    </div>
+
+    <!-- Status Message -->
+    <div id="status-message">No alerts yet.</div>
+
+    <footer>
+        Powered by <a href="https://ultralytics.com/yolov8" target="_blank">YOLOv8</a>
+    </footer>
+
+    <!-- Include Socket.IO -->
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script>
+        const socket = io();
+
+        // Listen for status updates from the server
+        socket.on('status_update', (data) => {
+            const statusMessage = document.getElementById('status-message');
+            statusMessage.textContent = data.message; // Update the status message dynamically
+        });
+    </script>
 
 </body>
 </html>

@@ -1,7 +1,7 @@
-train: ../train/images
-val: ../valid/images
+train: ./datasets/train/images
+val: ./datasets/valid/images
 
-test: ../test/images
+test: ./datasets/test/images
 
 nc: 10
 names: ['Hardhat', 'Mask', 'NO-Hardhat', 'NO-Mask', 'NO-Safety Vest', 'Person', 'Safety Cone', 'Safety Vest', 'machinery', 'vehicle']

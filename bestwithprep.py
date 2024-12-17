@@ -135,13 +135,30 @@ def generate_frames():
                 # Validate confidence and class ID
                 if confidence > 0.2 and int(cls_id) < len(class_names):  # Filter detections by confidence threshold
                     label = class_names[int(cls_id)]
+                    
+                    # Get original frame dimensions
+                    orig_h, orig_w = frame.shape[:2]
+                    resize_h, resize_w = 640, 640  # Model input size
+                    
+                    # Rescale bounding boxes
+                    if x_min < 1 and y_min < 1 and x_max <= 1 and y_max <= 1:
+                        x_min_rescaled = int(x_min * orig_w)
+                        y_min_rescaled = int(y_min * orig_h)
+                        x_max_rescaled = int(x_max * orig_w)
+                        y_max_rescaled = int(y_max * orig_h)
+                    else:
+                        x_min_rescaled = int(x_min * (orig_w / resize_w))
+                        y_min_rescaled = int(y_min * (orig_h / resize_h))
+                        x_max_rescaled = int(x_max * (orig_w / resize_w))
+                        y_max_rescaled = int(y_max * (orig_h / resize_h))
+
 
                     # Draw bounding box and label on the frame
                     color = (0, 255, 0) if not label.startswith('NO-') else (0, 0, 255)
-                    cv2.rectangle(frame, (int(x_min * frame.shape[1]), int(y_min * frame.shape[0])),
-                                  (int(x_max * frame.shape[1]), int(y_max * frame.shape[0])), color, 2)
-                    cv2.putText(frame, label, (int(x_min * frame.shape[1]), int(y_min * frame.shape[0]) - 10),
-                                cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                    cv2.rectangle(frame, (x_min_rescaled, y_min_rescaled), 
+                                 (x_max_rescaled, y_max_rescaled), color, 2)
+                    cv2.putText(frame, label, (x_min_rescaled, y_min_rescaled - 10),
+                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
 
                     # Handle violations
                     if label == 'Person':

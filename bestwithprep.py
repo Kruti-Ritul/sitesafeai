@@ -1,4 +1,4 @@
-
+#bestwithprep.py
 import cv2
 import numpy as np
 import time
@@ -92,109 +92,113 @@ def handle_request_report():
 
 def generate_frames():
     while True:
+        start_time = time.time()  # Start total time
         ret, frame = cap.read()
         if not ret:
             break
 
-        # Preprocess the frame
+        # 1. Preprocess the frame
+        preprocess_start = time.time()
         input_data = preprocess_frame(frame)
+        preprocess_time = (time.time() - preprocess_start) * 1000  # Convert to milliseconds
 
-        # Perform inference
+        # 2. Perform inference
+        inference_start = time.time()
         infer_request.infer(inputs={input_layer: input_data})
-        
-        # Get the output tensor
+        inference_time = (time.time() - inference_start) * 1000  # Convert to milliseconds
+
+        # 3. Get the output tensor
         output_tensor = infer_request.get_output_tensor(0)
         results = output_tensor.data
+        results = np.squeeze(results).flatten()  # Process output data
+        print("Raw detections:", results[:12])  # Print the first two detections
 
-        # Check the shape of the output
-        print("Output shape:", results.shape)
-
-        # Flatten or squeeze the results to remove unnecessary dimensions
-        results = np.squeeze(results)  # Remove the batch dimension if it's 1
-        results = results.flatten()  # Flatten the 14x8400 into a single array
-
+        # 4. Postprocess the results
+        postprocess_start = time.time()
         detections = results
         violations = []
         persons = []
+        detection_summary = []
 
-        for i in range(0, len(detections), 6):  # 6 values per detection (assuming the model output is correct)
-            # Try to unpack the detection correctly
+        # Create a separate overlay image
+        overlay = np.zeros_like(frame)
+
+        for i in range(0, len(detections), 6):  # Assuming 6 values per detection
             try:
-                detection = detections[i:i+6]  # Slice out the expected 6 values per detection
-                if len(detection) != 6:
-                    print(f"Skipping detection due to unexpected length: {len(detection)}")
-                    continue  # Skip detections with fewer than 6 values
+                x_min, y_min, x_max, y_max, confidence, cls_id = detections[i:i+6]
+                
+                # Ensure cls_id is within bounds
+                cls_id = int(cls_id)
 
-                # Unpack the values
-                x_min, y_min, x_max, y_max, confidence, cls_id = detection
+                # Confidence threshold and valid class check
+                if confidence > 0.1 and 0 <= cls_id < len(class_names):
+                    label = class_names[cls_id]
 
-                # Check if confidence is a numpy array, then extract scalar value
-                if isinstance(confidence, np.ndarray):
-                    confidence = confidence.item()  # Convert numpy array to scalar
-
-                # Validate confidence and class ID
-                if confidence > 0.2 and int(cls_id) < len(class_names):  # Filter detections by confidence threshold
-                    label = class_names[int(cls_id)]
-                    
-                    # Get original frame dimensions
-                    orig_h, orig_w = frame.shape[:2]
-                    resize_h, resize_w = 640, 640  # Model input size
-                    
                     # Rescale bounding boxes
-                    if x_min < 1 and y_min < 1 and x_max <= 1 and y_max <= 1:
-                        x_min_rescaled = int(x_min * orig_w)
-                        y_min_rescaled = int(y_min * orig_h)
-                        x_max_rescaled = int(x_max * orig_w)
-                        y_max_rescaled = int(y_max * orig_h)
-                    else:
-                        x_min_rescaled = int(x_min * (orig_w / resize_w))
-                        y_min_rescaled = int(y_min * (orig_h / resize_h))
-                        x_max_rescaled = int(x_max * (orig_w / resize_w))
-                        y_max_rescaled = int(y_max * (orig_h / resize_h))
+                    orig_h, orig_w = frame.shape[:2]
+                    
+                    x_min_rescaled = int(x_min * orig_w /20 )
+                    y_min_rescaled = int(y_min * orig_h / 20 )
+                    x_max_rescaled = int(x_max * orig_w /20)
+                    y_max_rescaled = int(y_max * orig_h / 20)
+                    
+                    class_colors = {
+                        'Hardhat': (0, 255, 0),           # Green
+                        'Safety Vest': (0, 255, 0),       # Green
+                        'Mask': (255, 255, 0),
+                        'No-Mask': (0, 165, 255),
+                        'NO-Hardhat': (0, 0, 255),        # Red
+                        'NO-Safety Vest': (0, 0, 255),    # Red
+                        'vehicle': (255, 255, 0),         # Cyan
+                        'machinery': (255, 0, 255),       # Magenta
+                        'Person': (255, 0, 0),            # Blue
+                        'Safety Cone': (0, 165, 255),     # Orange
+                    }
+                   
 
+                    # Draw bounding box and label on the overlay
+                    color = class_colors.get(label,(255,255,255))
+                    cv2.rectangle(overlay, (x_min_rescaled, y_min_rescaled), 
+                                  (x_max_rescaled, y_max_rescaled), color, 4)
+                    label_y = max(y_min_rescaled - 20, 20)
+                    cv2.putText(overlay, label, (x_min_rescaled, label_y),
+                                cv2.FONT_HERSHEY_SIMPLEX, 0.7, color, 2)
 
-                    # Draw bounding box and label on the frame
-                    color = (0, 255, 0) if not label.startswith('NO-') else (0, 0, 255)
-                    cv2.rectangle(frame, (x_min_rescaled, y_min_rescaled), 
-                                 (x_max_rescaled, y_max_rescaled), color, 2)
-                    cv2.putText(frame, label, (x_min_rescaled, y_min_rescaled - 10),
-                               cv2.FONT_HERSHEY_SIMPLEX, 0.5, color, 2)
+                    # Add to summary list for console output
+                    detection_summary.append(label)
 
-                    # Handle violations
-                    if label == 'Person':
-                        persons.append({'id': len(persons) + 1, 'violations': []})
-                    elif label.startswith('NO-'):
-                        if persons:
-                            persons[-1]['violations'].append(label)
-
+                    # Track violations
+                    if label.startswith('NO-'):
+                        violations.append(label)
+                    elif label == 'Person':
+                        persons.append(label)
             except Exception as e:
                 print(f"Error processing detection {i}: {e}")
-                continue  # Skip to the next detection if there's an error
+                continue
 
-        if persons:
-            for person in persons:
-                if person['violations']:
-                    violations.append(f"Person {person['id']} missing: {', '.join(person['violations'])}")
+        # Blend the overlay with the original frame
+        blended = cv2.addWeighted(frame, 0.7, overlay, 0.3, 0)
 
-        # Emit real-time updates via Socket.IO
-        if violations:
-            message = " | ".join(violations)
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            detections_history.append(f"[{timestamp}] {message}")
-        else:
-            message = "All safety equipment present for all detected individuals."
-            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            detections_history.append(f"[{timestamp}] {message}")
+        # Postprocess time
+        postprocess_time = (time.time() - postprocess_start) * 1000
 
+        # Summarize detections for console output
+        summary_string = ", ".join(detection_summary)
+        total_time = (time.time() - start_time) * 1000  # Total frame processing time
+        print(f"0: {frame.shape[0]}x{frame.shape[1]} {summary_string}, {inference_time:.1f}ms")
+        print(f"Speed: {preprocess_time:.1f}ms preprocess, {inference_time:.1f}ms inference, "
+              f"{postprocess_time:.1f}ms postprocess per image at shape {input_data.shape}")
+
+        # Emit status updates
+        message = f"Detected: {', '.join(violations)}" if violations else "All safety equipment present."
         socketio.emit('status_update', {'message': message})
 
         # Convert frame to JPEG for streaming
-        _, buffer = cv2.imencode('.jpg', frame)
+        _, buffer = cv2.imencode('.jpg', blended)
         frame_bytes = buffer.tobytes()
 
         yield (b'--frame\r\n'
                b'Content-Type: image/jpeg\r\n\r\n' + frame_bytes + b'\r\n\r\n')
-
 
 if __name__ == "__main__":
     socketio.run(app, debug=True)

@@ -7,6 +7,9 @@ from flask import Flask, render_template, Response
 from flask_socketio import SocketIO, emit
 from ultralytics import YOLO
 from twilio.rest import Client
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 app = Flask(__name__)
 socketio = SocketIO(app)
@@ -25,6 +28,41 @@ if not cap.isOpened():
 # Class names as per your model
 class_names = ['Hardhat', 'Mask', 'NO-Hardhat', 'NO-Mask', 'NO-Safety Vest', 
                'Person', 'Safety Cone', 'Safety Vest', 'machinery', 'vehicle']
+
+# Global variable to store detections for reporting
+detections_history = []
+
+# Function to generate a report with timestamps
+def generate_report():
+    if detections_history:
+        report = "\n".join(detections_history)
+        detections_history.clear()
+        return report
+    else:
+        return "No alerts yet."
+
+# Email sending function
+def send_email(report):
+    sender_email = "sitesafety.ai@gmail.com"  # Replace with your email
+    receiver_email = "ritul.pravash@gmail.com"  # Replace with recipient's email
+    password = "zyto haer emqo xxuj"  # Your email password or app password
+
+    message = MIMEMultipart()
+    message["From"] = sender_email
+    message["To"] = receiver_email
+    message["Subject"] = "YOLOv8 Detection Report"
+
+    body = MIMEText(report, "plain")
+    message.attach(body)
+
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.set_debuglevel(1)  # Enable debug level to see the communication with the SMTP server
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, message.as_string())
+            print("Email sent successfully")
+    except Exception as e:
+        print(f"Error sending email: {e}")
 
 # Twilio configuration
 twilio_sid = ''  # Replace with your Twilio SID
@@ -57,6 +95,13 @@ def index():
 @app.route('/video')
 def video():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+# Endpoint for generating and sending report
+@socketio.on('request_report')
+def handle_request_report():
+    report = generate_report()
+    send_email(report)  # Send the report directly to the email
+    print("Report generated and sent to email.")
 
 # Function to generate frames and process detections
 def generate_frames():
@@ -98,7 +143,7 @@ def generate_frames():
             detections_history.append(f"[{timestamp}] {message}")
 
             # Send SMS alert immediately
-            send_sms_alert(message)
+            #send_sms_alert(message)
         else:
             message = "All safety equipment present for all detected individuals."
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")

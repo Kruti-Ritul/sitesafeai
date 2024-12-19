@@ -69,9 +69,11 @@ The dataset is sourced from Kaggle: [Construction Site Safety Dataset](https://w
 
 ## Demo
 
-[Watch the Demo Video](./data/demo.mp4)
+[Watch the Demo Video](https://drive.google.com/file/d/1311zScdP6FhMhBqcy5lCJLJ8fiYMlEFk/view?usp=sharing)
 
-![Immediate SMS Alert](screenshots/demo_screenshot.png)
+<p align="center">
+  <img src="./data/demo.jpg" alt="Immediate SMS Alerts" width="400" height="700" />
+</p>
 
 ## Acknowledgements
 

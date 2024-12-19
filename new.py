@@ -33,7 +33,7 @@ detections_history = []
 
 # SMS Gateway configuration (Update for your carrier)
 sms_gateway = "sms.jio.com"  # Example: "txt.att.net" for AT&T
-recipient_phone_number = "9025237367"  # Replace with the recipient's phone number
+recipient_phone_number = "your_number"  # Replace with the recipient's phone number
 email_sender = "sitesafety.ai@gmail.com"  # Replace with your email
 email_password = "zyto haer emqo xxuj"  # App-specific password
 

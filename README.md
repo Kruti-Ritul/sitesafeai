@@ -11,11 +11,12 @@ Site Safe AI leverages the YOLOv8 (You Only Look Once) model for object detectio
 
 - **Computer Vision**: To detect and classify workers' safety gear.
 - **Real-Time Inference**: To monitor compliance on-site without manual intervention.
+- **Performance Optimization**: Using IPEX and Open VINO for maximum efficiency.
 - **Post-Processing Alerts**: Notifications via email or SMS when safety violations are detected.
 
 ## Features
 - Real-time detection of safety equipment (helmets, vests, etc.).
-- Optimized inference using Intel OpenVINO for faster processing.
+- Optimized inference using Intel OpenVINO and IPEX or faster processing. 
 - Alerts for safety violations via email or SMS.
 - Scalable architecture for deployment on edge devices or cloud platforms.
 
@@ -26,6 +27,7 @@ The dataset is sourced from Kaggle: [Construction Site Safety Dataset](https://w
 - **AI Models and Frameworks**:
   - YOLOv8: Deep learning model for object detection.
   - OpenVINO: Model optimization for faster inference.
+  - Intel Extension for Pytorch(IPEX): Performance optimizationg for PyTorch operations. 
   
 - **Programming Languages**:
   - Python
@@ -33,6 +35,7 @@ The dataset is sourced from Kaggle: [Construction Site Safety Dataset](https://w
 - **Tools and Platforms**:
   - Kaggle for model training and experimentation.
   - OpenVINO Toolkit: For optimizing the YOLOv8 model, enhancing inference performance on Intel hardware.
+  - Intel IPEX: For accelerating Pytorch workloads on Intel hardware. 
 
 ## How to use
 
@@ -46,9 +49,10 @@ The dataset is sourced from Kaggle: [Construction Site Safety Dataset](https://w
    pip install -r requirements.txt 
    ```
 3. **Train the model**:
-- Use the YOLOv8 notebook to train the model on the provided dataset.
+- Use the `./sitesafeai.ipynb` (YOLOv8 notebook) to train the model on the provided dataset.
 4. **Optimize the model**:
-- Convert the trained model using OpenVINO for faster inference.
+- Convert the trained model using OpenVINO (`./OpenVino Optimization.ipynb`) for faster inference.
+- To optimize Yolov8 using IPEX(`./IPEX Optimization.ipynb`) 
 5. **Run the application**:
    ```bash 
    python app.py 
@@ -57,5 +61,6 @@ The dataset is sourced from Kaggle: [Construction Site Safety Dataset](https://w
 ## Acknowledgements
 - Kaggle for providing the Construction Site Safety Dataset.
 - Intel OpenVINO for optimization tools.
+- Intel IPEX for PyTorch optimization support. 
 - YOLOv8 for object detection.
 

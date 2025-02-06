@@ -55,8 +55,8 @@ def generate_report():
 # Email sending function
 def send_email(report):
     sender_email = "sitesafety.ai@gmail.com"  # Replace with your email
-    receiver_email = "ritul.pravash@gmail.com"  # Replace with recipient's email
-    password = "zyto haer emqo xxuj"  # Your email password or app password
+    receiver_email = "xxx@gmail.com"  # Replace with recipient's email
+    password = "xxxxxxxxxx"  # Your email password or app password
 
     message = MIMEMultipart()
     message["From"] = sender_email

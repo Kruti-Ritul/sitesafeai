@@ -19,7 +19,6 @@ openvino==2024.1.0
 kaggle==1.5.12
 
 # For sending alerts (email/SMS)
-smtplib==0.1.0
 twilio==7.14.0  # Optional for SMS notifications
 
 # Other utilities

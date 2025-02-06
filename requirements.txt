@@ -13,7 +13,7 @@ torchvision==0.15.0
 ultralytics==8.0.42  # YOLOv8 package
 
 # For OpenVINO Optimization
-openvino==2024.0.0.453
+openvino==2024.1.0
 
 # For working with Kaggle data (if you're using Kaggle API to download datasets)
 kaggle==1.5.12

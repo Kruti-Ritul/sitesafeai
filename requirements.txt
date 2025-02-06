@@ -6,6 +6,7 @@ flask-socketio
 torch
 torchvision
 ultralytics
+gunicorn
 
 # For YOLOv8 and PyTorch
 torch

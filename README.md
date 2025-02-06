@@ -62,6 +62,7 @@ The dataset is sourced from Kaggle: [Construction Site Safety Dataset](https://w
 - Convert the trained model using OpenVINO(`./OpenVino Optimization.ipynb`) for faster inference.
 - Apply IPEX Optimization (`./IPEX Optimization.ipynb`)
 - Use the `./sitesafeai.ipynb` (YOLOv8 notebook) to train the model on the provided dataset.
+- Add your email id to get generate reports in `./app.py`.
 
 4. **Optimize the model**:
 

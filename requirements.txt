@@ -7,6 +7,7 @@ torch
 torchvision
 ultralytics
 gunicorn
+dill
 
 # For YOLOv8 and PyTorch
 torch

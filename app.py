@@ -29,8 +29,9 @@ cap = cv2.VideoCapture(0)
 # Check if the camera opened successfully
 if not cap.isOpened():
     print("Error: Could not open webcam")
-    exit()
     cap = None
+    exit()
+
 
 # Class names as per your model
 class_names = ['Hardhat', 'Mask', 'NO-Hardhat', 'NO-Mask', 'NO-Safety Vest', 
@@ -432,4 +433,5 @@ def generate_frames():
 if __name__ == "__main__":
     socketio.run(app, debug=True)
     port = int(os.environ.get("PORT", 5000))
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=8080)
+    gunicorn -b 0.0.0.0:8080 app:app
